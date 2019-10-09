@@ -142,6 +142,7 @@ void rtc_matrix_setup(void) {
 		}
 		esp_sleep_enable_ext1_wakeup(rtc_mask, ESP_EXT1_WAKEUP_ANY_HIGH);
 	}
+#endif
 #ifdef ROW2COL
 	// Initializing rows-output
 	for (uint8_t row = 0; col < MATRIX_ROWS; row++) {
@@ -170,6 +171,7 @@ void rtc_matrix_setup(void) {
 		}
 		esp_sleep_enable_ext1_wakeup(rtc_mask, ESP_EXT1_WAKEUP_ANY_HIGH);
 	}
+#endif
 }
 
 // Initializing matrix pins

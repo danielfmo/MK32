@@ -1,6 +1,6 @@
 /** @file
- * This file is very simple: undef everything 
- * which was defined in keylayouts.h 
+ * This file is very simple: undef everything
+ * which was defined in keylayouts.h
  * @see keyboard.c for explanation*/
 
 ///@cond DONOTUSETHISFILE
@@ -27,7 +27,7 @@
 #undef LAYOUT_SPANISH_LATIN_AMERICA
 #undef LAYOUT_SWEDISH
 #undef LAYOUT_TURKISH
-#undef LAYOUT_UNITED_KINGDOM	
+#undef LAYOUT_UNITED_KINGDOM
 #undef LAYOUT_US_INTERNATIONAL
 #undef LAYOUT_SERBIAN_LATIN_ONLY
 #undef LAYOUT_CZECH

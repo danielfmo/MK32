@@ -3,17 +3,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
+ *
  * Copyright 2019 Benjamin Aigner <beni@asterics-foundation.org>
  */
 
@@ -69,11 +69,11 @@ esp_err_t halBLESetPairing(uint8_t enable);
 uint8_t halBLEIsConnected(void);
 
 /** @brief En- or Disable BLE interface.
- * 
+ *
  * This method is used to enable or disable the BLE interface. Currently, the ESP32
  * cannot use WiFi and BLE simultaneously. Therefore, when enabling wifi, it is
  * necessary to disable BLE prior calling taskWebGUIEnDisable.
- * 
+ *
  * @note Calling this method prior to initializing BLE via halBLEInit will
  * result in an error!
  * @return ESP_OK on success, ESP_FAIL otherwise
@@ -82,13 +82,13 @@ uint8_t halBLEIsConnected(void);
 esp_err_t halBLEEnDisable(int onoff);
 
 /** @brief Reset the BLE data
- * 
+ *
  * Used for slot/config switchers.
  * It resets the keycode array and sets all HID reports to 0
- * (release all keys, avoiding sticky keys on a config change) 
+ * (release all keys, avoiding sticky keys on a config change)
  * @param exceptDevice if you want to reset only a part of the devices, set flags
  * accordingly:
- * 
+ *
  * (1<<0) excepts keyboard
  * (1<<1) excepts joystick
  * (1<<2) excepts mouse
@@ -98,7 +98,6 @@ void halBLEReset(uint8_t exceptDevice);
 
 /** @brief Main init function to start HID interface (C interface)
  * @see hid_ble */
-esp_err_t halBLEInit(uint8_t enableKeyboard, uint8_t enableMedia,
-		uint8_t enableMouse, uint8_t enableJoystick);
+esp_err_t halBLEInit(uint8_t enableKeyboard, uint8_t enableMedia, uint8_t enableMouse, uint8_t enableJoystick);
 
 #endif /* _HAL_BLE_H_ */

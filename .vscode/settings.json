@@ -1,5 +1,22 @@
 {
+    "editor.insertSpaces": true,
+    "files.exclude": {
+        "**/.build": true,
+        "**/*.hex": true,
+        "**/*.bin": true
+    },
     "files.associations": {
-        "*.h": "cpp"
+        "*.h": "c",
+        "*.c": "c",
+        "*.inc": "c",
+        "*.cpp": "cpp",
+        "*.hpp": "cpp",
+        "xstddef": "c",
+        "type_traits": "c",
+        "utility": "c"
+    },
+    "[markdown]": {
+        "editor.trimAutoWhitespace": false,
+        "files.trimTrailingWhitespace": false
     }
 }

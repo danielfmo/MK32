@@ -16,16 +16,16 @@ extern "C" {
 
 uint8_t killServer;
 
-#define OPENSSL_EXAMPLE_TASK_NAME        "openssl_example"
+#define OPENSSL_EXAMPLE_TASK_NAME "openssl_example"
 #define OPENSSL_EXAMPLE_TASK_STACK_WORDS 10240
-#define OPENSSL_EXAMPLE_TASK_PRIORITY    8
+#define OPENSSL_EXAMPLE_TASK_PRIORITY 8
 
-#define OPENSSL_EXAMPLE_RECV_BUF_LEN       1024
+#define OPENSSL_EXAMPLE_RECV_BUF_LEN 1024
 
-#define OPENSSL_EXAMPLE_LOCAL_TCP_PORT     443
+#define OPENSSL_EXAMPLE_LOCAL_TCP_PORT 443
 
-//Initialize the layout server
-void http_server(void * pvParameters);
+// Initialize the layout server
+void http_server(void* pvParameters);
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,4 @@
 
 void testFunc(void *pvParameters);
 
-
-
 #endif /* PLUGINS_TESTFUNC_H_ */

@@ -22,7 +22,6 @@
 #include <string.h>
 #include <assert.h>
 
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 #include "nvs_flash.h"
@@ -45,113 +44,100 @@
 // Queue for sending esp-now reports
 QueueHandle_t espnow_matrix_send_q;
 QueueHandle_t espnow_encoder_send_q;
-//Mac adress of the main device (only mac address needed for ESP-NOW)
-static uint8_t master_mac_adr[6]= {0x80,0x7d,0x3a,0xba,0x26,0x88};
+// Mac adress of the main device (only mac address needed for ESP-NOW)
+static uint8_t master_mac_adr[6] = {0x80, 0x7d, 0x3a, 0xba, 0x26, 0x88};
 
 uint8_t channel = 10;
 static esp_now_peer_info_t Peer;
-static esp_now_peer_info_t *pPeer=&Peer;
+static esp_now_peer_info_t *pPeer = &Peer;
 
 // Initializing WiFi
-void wifi_initialize_send(void){
+void wifi_initialize_send(void) {
+    ESP_LOGI(ESP_NOW_TAG, "Initialing WiFI!");
 
-	ESP_LOGI(ESP_NOW_TAG,"Initialing WiFI!");
+    // Setting up the Wifi.
+    uint8_t slave_mac_adr[6];
+    tcpip_adapter_init();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));  // For some reason ESP-NOW only works if all devices are in the same mode
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_set_channel(channel, 0));  // Make sure we are on the same channel
+    ESP_ERROR_CHECK(esp_wifi_get_mac(ESP_IF_WIFI_STA, slave_mac_adr));
 
-	// Setting up the Wifi.
-	uint8_t slave_mac_adr[6];
-	tcpip_adapter_init();
-	ESP_ERROR_CHECK(esp_event_loop_create_default());
-	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA)) ; // For some reason ESP-NOW only works if all devices are in the same mode
-	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-	ESP_ERROR_CHECK(esp_wifi_start());
-	ESP_ERROR_CHECK(esp_wifi_set_channel(channel, 0) ); // Make sure we are on the same channel
-	ESP_ERROR_CHECK(esp_wifi_get_mac(ESP_IF_WIFI_STA,slave_mac_adr));
-
-	//Printout the mac ID (in case we change the starting one)
-	printf("DEVICE MAC ADDRESS:[");
-	for(int i=0;i<6; i++)
-	{
-		printf("%d:", slave_mac_adr[i]);
-	}
-	printf("]");
+    // Printout the mac ID (in case we change the starting one)
+    printf("DEVICE MAC ADDRESS:[");
+    for (int i = 0; i < 6; i++) {
+        printf("%d:", slave_mac_adr[i]);
+    }
+    printf("]");
 }
 
 // Callback function after sending data
-void espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status){
+void espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
+    switch (status) {
+        case (ESP_NOW_SEND_SUCCESS):
+            ESP_LOGI(ESP_NOW_TAG, "Data Sent successfully!");
+            break;
 
+        case (ESP_NOW_SEND_FAIL):
+            ESP_LOGI(ESP_NOW_TAG, "Data not Sent, trying a different channel");
+            break;
 
-	switch(status){
-	case(ESP_NOW_SEND_SUCCESS):
-		ESP_LOGI(ESP_NOW_TAG,"Data Sent successfully!");
-	break;
-
-	case(ESP_NOW_SEND_FAIL):
-		ESP_LOGI(ESP_NOW_TAG,"Data not Sent, trying a different channel");
-	break;
-
-	break;
-	}
+            break;
+    }
 }
 
 // Function for sending state
-void espnow_send_state(void *pvParameters){
-	uint8_t CURRENT_MATRIX[MATRIX_ROWS][MATRIX_COLS]={0};
-	while(1)
-	{
-		//Wait to receive update matrix state
-		if(xQueueReceive(espnow_matrix_send_q,&CURRENT_MATRIX,2))
-		{
-			ESP_LOGI(ESP_NOW_TAG,"Sending Slave matrix state!");
-			//send the report
-			esp_now_send(pPeer->peer_addr,(uint8_t*)&CURRENT_MATRIX,sizeof(CURRENT_MATRIX));
-
-		}
+void espnow_send_state(void *pvParameters) {
+    uint8_t CURRENT_MATRIX[MATRIX_ROWS][MATRIX_COLS] = {0};
+    while (1) {
+        // Wait to receive update matrix state
+        if (xQueueReceive(espnow_matrix_send_q, &CURRENT_MATRIX, 2)) {
+            ESP_LOGI(ESP_NOW_TAG, "Sending Slave matrix state!");
+            // send the report
+            esp_now_send(pPeer->peer_addr, (uint8_t *)&CURRENT_MATRIX, sizeof(CURRENT_MATRIX));
+        }
 
 #ifdef R_ENCODER_SLAVE
-		uint8_t CURRENT_ENCODER[1]={0};
-		if(xQueueReceive(espnow_encoder_send_q,&CURRENT_ENCODER,2))
-		{
-			ESP_LOGI(ESP_NOW_TAG,"Sending encoder state!");
-			//send the report
-			esp_now_send(pPeer->peer_addr,(uint8_t*)&CURRENT_ENCODER,sizeof(CURRENT_ENCODER));
-
-		}
+        uint8_t CURRENT_ENCODER[1] = {0};
+        if (xQueueReceive(espnow_encoder_send_q, &CURRENT_ENCODER, 2)) {
+            ESP_LOGI(ESP_NOW_TAG, "Sending encoder state!");
+            // send the report
+            esp_now_send(pPeer->peer_addr, (uint8_t *)&CURRENT_ENCODER, sizeof(CURRENT_ENCODER));
+        }
 #endif
-	}
-
+    }
 }
 // Initialize sending via espnow
-void espnow_initialize_send(void){
+void espnow_initialize_send(void) {
+    ESP_LOGI(ESP_NOW_TAG, "Initialing ESP-NOW");
+    esp_now_init();
+    esp_now_register_send_cb(espnow_send_cb);
 
-	ESP_LOGI(ESP_NOW_TAG,"Initialing ESP-NOW");
-	esp_now_init();
-	esp_now_register_send_cb(espnow_send_cb);
+    // We need to assign a peer for each pad, will be improved for multiple pad functionality in the future.
 
-	//We need to assign a peer for each pad, will be improved for multiple pad functionality in the future.
+    pPeer->channel = channel;
+    memcpy(pPeer->peer_addr, master_mac_adr, 6);
+    pPeer->ifidx   = ESP_IF_WIFI_STA;
+    pPeer->encrypt = 0;
+    esp_now_add_peer(pPeer);
 
-	pPeer->channel = channel;
-	memcpy(pPeer->peer_addr,master_mac_adr,6);
-	pPeer->ifidx = ESP_IF_WIFI_STA;
-	pPeer->encrypt = 0;
-	esp_now_add_peer(pPeer);
-
-	//Sending matrix state
-	xTaskCreate(espnow_send_state, "Send matrix changes", 4096, NULL, configMAX_PRIORITIES, NULL);
-
+    // Sending matrix state
+    xTaskCreate(espnow_send_state, "Send matrix changes", 4096, NULL, configMAX_PRIORITIES, NULL);
 }
 
-void espnow_send(void){
-
-	ESP_LOGI(ESP_NOW_TAG,"Initialing ESP-NOW functions for sending data");
-	espnow_matrix_send_q = xQueueCreate(32,(2+MATRIX_ROWS*MATRIX_COLS)*sizeof(uint8_t));
+void espnow_send(void) {
+    ESP_LOGI(ESP_NOW_TAG, "Initialing ESP-NOW functions for sending data");
+    espnow_matrix_send_q = xQueueCreate(32, (2 + MATRIX_ROWS * MATRIX_COLS) * sizeof(uint8_t));
 #ifdef R_ENCODER_SLAVE
-	r_encoder_setup();
-	espnow_encoder_send_q = xQueueCreate(32,sizeof(uint8_t));
+    r_encoder_setup();
+    espnow_encoder_send_q = xQueueCreate(32, sizeof(uint8_t));
 #endif
 
-	wifi_initialize_send();
-	espnow_initialize_send();
+    wifi_initialize_send();
+    espnow_initialize_send();
 }

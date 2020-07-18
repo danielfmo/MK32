@@ -34,45 +34,38 @@
 
 #include "battery_monitor.h"
 
-#define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
-#define NO_OF_SAMPLES   500          //Multisampling
+#define DEFAULT_VREF 1100  // Use adc2_vref_to_gpio() to obtain a better estimate
+#define NO_OF_SAMPLES 500  // Multisampling
 
 static const adc_channel_t channel = BATT_PIN;
-static const adc_atten_t atten = ADC_ATTEN_DB_2_5;
-static const adc_unit_t unit = ADC_UNIT_1;
+static const adc_atten_t atten     = ADC_ATTEN_DB_2_5;
+static const adc_unit_t unit       = ADC_UNIT_1;
 
 uint32_t voltage = 0;
 
 static esp_adc_cal_characteristics_t *adc_chars;
-//check battery level
+// check battery level
 
 uint32_t get_battery_level(void) {
+    uint32_t adc_reading = 0;
+    // Multisampling
 
-	uint32_t adc_reading = 0;
-	//Multisampling
+    for (int i = 0; i < NO_OF_SAMPLES; i++) {
+        adc_reading += adc1_get_raw((adc1_channel_t)channel);
+    }
+    adc_reading /= NO_OF_SAMPLES;
 
-	for (int i = 0; i < NO_OF_SAMPLES; i++) {
-		adc_reading += adc1_get_raw((adc1_channel_t) channel);
-	}
-	adc_reading /= NO_OF_SAMPLES;
-
-	//Convert adc_reading to voltage in mV
-	voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-	uint32_t battery_percent = ((voltage - Vout_min) * 100
-			/ (Vout_max - Vout_min));
-//    printf("Raw: %d\tVoltage: %dmV\tPercent: %d\n", adc_reading, voltage, battery_percent);
-	return battery_percent;
-
+    // Convert adc_reading to voltage in mV
+    voltage                  = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+    uint32_t battery_percent = ((voltage - Vout_min) * 100 / (Vout_max - Vout_min));
+    //    printf("Raw: %d\tVoltage: %dmV\tPercent: %d\n", adc_reading, voltage, battery_percent);
+    return battery_percent;
 }
 
-//initialize battery monitor pin
+// initialize battery monitor pin
 void init_batt_monitor(void) {
-
-	adc1_config_width(ADC_WIDTH_BIT_12);
-	adc1_config_channel_atten(BATT_PIN, atten);
-	adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
-	esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF,
-			adc_chars);
-
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(BATT_PIN, atten);
+    adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
+    esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
 }
-

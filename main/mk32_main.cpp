@@ -49,7 +49,7 @@
 #include "keyboard_config.h"
 #include "espnow_recieve.h"
 #include "espnow_send.h"
-#include "r_encoder.h"
+// #include "r_encoder.h"
 #include "battery_monitor.h"
 #include "nvs_funcs.h"
 #include "nvs_keymaps.h"
@@ -67,39 +67,39 @@ QueueHandle_t espnow_recieve_q;
 
 bool DEEP_SLEEP = true;  // flag to check if we need to go to deep sleep
 
-#ifdef OLED_ENABLE
-TaskHandle_t xOledTask;
-#endif
+// #ifdef OLED_ENABLE
+// TaskHandle_t xOledTask;
+// #endif
 TaskHandle_t xKeyreportTask;
 
 // Task for continually updating the OLED
-extern "C" void oled_task(void *pvParameters) {
-#ifdef MASTER
-    ble_connected_oled();
-    bool CON_LOG_FLAG = false;  // Just because I don't want it to keep logging the same thing a billion times
-    while (1) {
-        if (halBLEIsConnected() == 0) {
-            if (CON_LOG_FLAG == false) {
-                ESP_LOGI(KEY_REPORT_TAG, "Not connected, waiting for connection ");
-            }
-            waiting_oled();
-            DEEP_SLEEP   = false;
-            CON_LOG_FLAG = true;
-        } else {
-            if (CON_LOG_FLAG == true) {
-                ble_connected_oled();
-            }
-            update_oled();
-            CON_LOG_FLAG = false;
-        }
-    }
-#endif
-#ifdef SLAVE
-    while (1) {
-        ble_slave_oled();
-    }
-#endif
-}
+// extern "C" void oled_task(void *pvParameters) {
+// #ifdef MASTER
+//     ble_connected_oled();
+//     bool CON_LOG_FLAG = false;  // Just because I don't want it to keep logging the same thing a billion times
+//     while (1) {
+//         if (halBLEIsConnected() == 0) {
+//             if (CON_LOG_FLAG == false) {
+//                 ESP_LOGI(KEY_REPORT_TAG, "Not connected, waiting for connection ");
+//             }
+//             waiting_oled();
+//             DEEP_SLEEP   = false;
+//             CON_LOG_FLAG = true;
+//         } else {
+//             if (CON_LOG_FLAG == true) {
+//                 ble_connected_oled();
+//             }
+//             update_oled();
+//             CON_LOG_FLAG = false;
+//         }
+//     }
+// #endif
+// #ifdef SLAVE
+//     while (1) {
+//         ble_slave_oled();
+//     }
+// #endif
+// }
 
 // How to handle key reports
 extern "C" void key_reports(void *pvParameters) {
@@ -153,34 +153,34 @@ extern "C" void key_reports(void *pvParameters) {
 }
 
 // Handling rotary encoder
-extern "C" void encoder_report(void *pvParameters) {
-    uint8_t encoder_state      = 0;
-    uint8_t past_encoder_state = 0;
+// extern "C" void encoder_report(void *pvParameters) {
+//     uint8_t encoder_state      = 0;
+//     uint8_t past_encoder_state = 0;
 
-    while (1) {
-        encoder_state = r_encoder_state();
-        if (encoder_state != past_encoder_state) {
-            DEEP_SLEEP = false;
-            r_encoder_command(encoder_state, encoder_map[current_layout]);
-            past_encoder_state = encoder_state;
-        }
-    }
-}
+//     while (1) {
+//         encoder_state = r_encoder_state();
+//         if (encoder_state != past_encoder_state) {
+//             DEEP_SLEEP = false;
+//             r_encoder_command(encoder_state, encoder_map[current_layout]);
+//             past_encoder_state = encoder_state;
+//         }
+//     }
+// }
 
 // Handling rotary encoder for slave pad
-extern "C" void slave_encoder_report(void *pvParameters) {
-    uint8_t encoder_state      = 0;
-    uint8_t past_encoder_state = 0;
+// extern "C" void slave_encoder_report(void *pvParameters) {
+//     uint8_t encoder_state      = 0;
+//     uint8_t past_encoder_state = 0;
 
-    while (1) {
-        encoder_state = r_encoder_state();
-        if (encoder_state != past_encoder_state) {
-            DEEP_SLEEP = false;
-            xQueueSend(espnow_encoder_send_q, (void *)&encoder_state, (TickType_t)0);
-            past_encoder_state = encoder_state;
-        }
-    }
-}
+//     while (1) {
+//         encoder_state = r_encoder_state();
+//         if (encoder_state != past_encoder_state) {
+//             DEEP_SLEEP = false;
+//             xQueueSend(espnow_encoder_send_q, (void *)&encoder_state, (TickType_t)0);
+//             past_encoder_state = encoder_state;
+//         }
+//     }
+// }
 
 // Function for sending out the modified matrix
 extern "C" void slave_scan(void *pvParameters) {
@@ -231,11 +231,11 @@ extern "C" void deep_sleep(void *pvParameters) {
         if (((double)current_time_passed / USEC_TO_SEC) >= (double)(SEC_TO_MIN * SLEEP_MINS)) {
             if (DEEP_SLEEP == true) {
                 ESP_LOGE(SYSTEM_REPORT_TAG, "going to sleep!");
-#ifdef OLED_ENABLE
-                vTaskDelay(20 / portTICK_PERIOD_MS);
-                vTaskSuspend(xOledTask);
-                deinit_oled();
-#endif
+// #ifdef OLED_ENABLE
+//                 vTaskDelay(20 / portTICK_PERIOD_MS);
+//                 vTaskSuspend(xOledTask);
+//                 deinit_oled();
+// #endif
                 // wake up esp32 using rtc gpio
                 rtc_matrix_setup();
                 esp_sleep_enable_touchpad_wakeup();
@@ -299,9 +299,9 @@ extern "C" void app_main() {
     // If the device is a slave initialize sending reports to master
 #ifdef SLAVE
     xTaskCreatePinnedToCore(slave_scan, "Scan matrix changes for slave", 4096, xKeyreportTask, configMAX_PRIORITIES, NULL, 1);
-#ifdef R_ENCODER_SLAVE
-    xTaskCreatePinnedToCore(slave_encoder_report, "Scan encoder changes for slave", 4096, NULL, configMAX_PRIORITIES, NULL, 1);
-#endif
+// #ifdef R_ENCODER_SLAVE
+//     xTaskCreatePinnedToCore(slave_encoder_report, "Scan encoder changes for slave", 4096, NULL, configMAX_PRIORITIES, NULL, 1);
+// #endif
     espnow_send();
 #endif
 
@@ -315,11 +315,11 @@ extern "C" void app_main() {
 #endif
 
     // activate encoder functions
-#ifdef R_ENCODER
-    r_encoder_setup();
-    xTaskCreatePinnedToCore(encoder_report, "encoder report", 4096, NULL, configMAX_PRIORITIES, NULL, 1);
-    ESP_LOGI("Encoder", "initializezd");
-#endif
+// #ifdef R_ENCODER
+//     r_encoder_setup();
+//     xTaskCreatePinnedToCore(encoder_report, "encoder report", 4096, NULL, configMAX_PRIORITIES, NULL, 1);
+//     ESP_LOGI("Encoder", "initializezd");
+// #endif
 
     // Start the keyboard Tasks
     // Create the key scanning task on core 1 (otherwise it will crash)
@@ -329,11 +329,11 @@ extern "C" void app_main() {
     ESP_LOGI("Keyboard task", "initializezd");
 #endif
     // activate oled
-#ifdef OLED_ENABLE
-    init_oled(ROTATION);
-    xTaskCreatePinnedToCore(oled_task, "oled task", 4096, NULL, configMAX_PRIORITIES, &xOledTask, 1);
-    ESP_LOGI("Oled", "initializezd");
-#endif
+// #ifdef OLED_ENABLE
+//     init_oled(ROTATION);
+//     xTaskCreatePinnedToCore(oled_task, "oled task", 4096, NULL, configMAX_PRIORITIES, &xOledTask, 1);
+//     ESP_LOGI("Oled", "initializezd");
+// #endif
 
 #ifdef BATT_STAT
     init_batt_monitor();

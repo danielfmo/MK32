@@ -36,7 +36,7 @@
 
 #include "espnow_recieve.h"
 #include "keyboard_config.h"
-#include "r_encoder.h"
+// #include "r_encoder.h"
 #include "nvs_keymaps.h"
 
 // ESP-now tag for reports
@@ -73,7 +73,7 @@ static void wifi_initialize_recieve(void) {
 // ESP-NOW callback upon receiving data
 static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
     ESP_LOGI(ESP_NOW_TAG, "Data received!");
-    uint8_t CURRENT_ENCODER[1]                       = {0};
+    // uint8_t CURRENT_ENCODER[1]                       = {0};
     uint8_t CURRENT_MATRIX[MATRIX_ROWS][MATRIX_COLS] = {0};
 
     // for key reports
@@ -83,10 +83,10 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int dat
     }
 
     // currently for encoder reports
-    if (data_len == 1) {
-        memcpy(CURRENT_ENCODER, data, sizeof(CURRENT_ENCODER));
-        r_encoder_command(CURRENT_ENCODER[0], slave_encoder_map[current_layout]);
-    }
+    // if (data_len == 1) {
+    //     memcpy(CURRENT_ENCODER, data, sizeof(CURRENT_ENCODER));
+    //     r_encoder_command(CURRENT_ENCODER[0], slave_encoder_map[current_layout]);
+    // }
 }
 
 // Initialize receiving via ESP-NOW

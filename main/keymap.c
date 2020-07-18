@@ -51,21 +51,21 @@ uint16_t macros[MACROS_NUM][MACRO_LEN] = {
  * First variable states what usage the encoder has
  */
 
-uint16_t default_encoder_map[LAYERS][ENCODER_SIZE] = {
-    // |VOL + | VOL - | MUTE |
-    {MEDIA_ENCODER, KC_AUDIO_VOL_UP, KC_AUDIO_VOL_DOWN, KC_AUDIO_MUTE},
-    // |Y+|Y-| LEFT CLICK|
-    {MOUSE_ENCODER, KC_MS_UP, KC_MS_DOWN, KC_MS_BTN1},
+// uint16_t default_encoder_map[LAYERS][ENCODER_SIZE] = {
+//     // |VOL + | VOL - | MUTE |
+//     {MEDIA_ENCODER, KC_AUDIO_VOL_UP, KC_AUDIO_VOL_DOWN, KC_AUDIO_MUTE},
+//     // |Y+|Y-| LEFT CLICK|
+//     {MOUSE_ENCODER, KC_MS_UP, KC_MS_DOWN, KC_MS_BTN1},
 
-    {MOUSE_ENCODER, KC_MS_UP, KC_MS_DOWN, KC_MS_BTN1}};
+//     {MOUSE_ENCODER, KC_MS_UP, KC_MS_DOWN, KC_MS_BTN1}};
 
-uint16_t default_slave_encoder_map[LAYERS][ENCODER_SIZE] = {
-    // |VOL + | VOL - | MUTE |
-    {MEDIA_ENCODER, KC_AUDIO_VOL_UP, KC_AUDIO_VOL_DOWN, KC_AUDIO_MUTE},
-    // |Y+|Y-| LEFT CLICK|
-    {MOUSE_ENCODER, KC_MS_RIGHT, KC_MS_LEFT, KC_MS_BTN2},
-    // |Y+|Y-| LEFT CLICK|
-    {MOUSE_ENCODER, KC_MS_RIGHT, KC_MS_LEFT, KC_MS_BTN2}};
+// uint16_t default_slave_encoder_map[LAYERS][ENCODER_SIZE] = {
+//     // |VOL + | VOL - | MUTE |
+//     {MEDIA_ENCODER, KC_AUDIO_VOL_UP, KC_AUDIO_VOL_DOWN, KC_AUDIO_MUTE},
+//     // |Y+|Y-| LEFT CLICK|
+//     {MOUSE_ENCODER, KC_MS_RIGHT, KC_MS_LEFT, KC_MS_BTN2},
+//     // |Y+|Y-| LEFT CLICK|
+//     {MOUSE_ENCODER, KC_MS_RIGHT, KC_MS_LEFT, KC_MS_BTN2}};
 
 // Fillers to make layering more clear
 #define _______ KC_TRNS

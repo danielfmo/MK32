@@ -25,9 +25,10 @@
 #include "keymap.c"
 #include "matrix.h"
 #include "hal_ble.h"
-#include "oled_tasks.h"
+// #include "oled_tasks.h"
 #include "nvs_keymaps.h"
 #include "plugin_manager.h"
+#include "plugins.h"
 
 #define KEY_PRESS_TAG "KEY_PRESS"
 
@@ -140,9 +141,9 @@ void layer_adjust(uint16_t keycode) {
                     current_layout++;
                     break;
             }
-#ifdef OLED_ENABLE
-            xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
-#endif
+            // #ifdef OLED_ENABLE
+            //             xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
+            // #endif
             ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
         }
     }
@@ -183,9 +184,9 @@ uint8_t *check_key_state(uint16_t **keymap) {
                             prev_layout     = current_layout;
                             current_layout  = (keycode - LAYER_HOLD_BASE_VAL);
                             layer_hold_flag = 1;
-#ifdef OLED_ENABLE
-                            xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
-#endif
+                            // #ifdef OLED_ENABLE
+                            //                             xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
+                            // #endif
                             ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
                         }
 
@@ -230,9 +231,9 @@ uint8_t *check_key_state(uint16_t **keymap) {
                     if ((layouts[prev_layout][row][col] >= LAYER_HOLD_BASE_VAL) && (keycode <= LAYER_HOLD_MAX_VAL) && (layer_hold_flag == 1)) {
                         current_layout  = 0;
                         layer_hold_flag = 0;
-#ifdef OLED_ENABLE
-                        xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
-#endif
+                        // #ifdef OLED_ENABLE
+                        //                         xQueueSend(layer_recieve_q, &current_layout, (TickType_t)0);
+                        // #endif
                         ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
                     }
 

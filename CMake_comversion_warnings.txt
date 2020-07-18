@@ -1,0 +1,28 @@
+$IDF_PATH/tools/cmake/convert_to_cmake.py /home/daniel/esp/MK32
+Converting /home/daniel/esp/MK32...
+Converted /home/daniel/esp/MK32/components/battery_monitor/CMakeLists.txt
+Converted /home/daniel/esp/MK32/components/ble_new/CMakeLists.txt
+Converted /home/daniel/esp/MK32/components/espnow/CMakeLists.txt
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/plugin_manager
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/testFunc
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/layout_server
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/plugins
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/plugin_components/hid_keycode_conv/keycode_conv
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS plugins/plugin_components/wifi_manager/wifi_manager
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/nvs_funcs/arr_conv
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/nvs_funcs/nvs_funcs
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/battery_monitor/battery_monitor
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/espnow/espnow_recieve
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/espnow/espnow_send
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/ble_new/hid_device_le_prf
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/ble_new/hal_ble
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/ble_new/keyboard
+WARNING: Can't find source file for component /home/daniel/esp/MK32/main COMPONENT_OBJS components/ble_new/hid_dev
+Converted /home/daniel/esp/MK32/main/CMakeLists.txt
+Converted /home/daniel/esp/MK32/components/nvs_funcs/CMakeLists.txt
+Converted project /home/daniel/esp/MK32/CMakeLists.txt
+
+Note: Newly created component CMakeLists.txt do not have any REQUIRES or PRIV_REQUIRES lists to declare their component requirements.
+Builds may fail to include other components' header files. If so requirements need to be added to the components' CMakeLists.txt files.
+See the 'Component Requirements' section of the Build System docs for more details.
+https://docs.espressif.com/projects/esp-idf/en/v4.0.1/api-guides/build-system.html

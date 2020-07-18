@@ -12,8 +12,8 @@ COMPONENT_SRCDIRS +=../plugins/plugin_components/wifi_manager
 COMPONENT_SRCDIRS +=../plugins/plugin_components
 COMPONENT_SRCDIRS +=../components/nvs_funcs
 COMPONENT_SRCDIRS +=../components/battery_monitor
-COMPONENT_SRCDIRS +=../components/u8g2_OLED
-COMPONENT_SRCDIRS +=../components/r_encoder
+# COMPONENT_SRCDIRS +=../components/u8g2_OLED
+# COMPONENT_SRCDIRS +=../components/r_encoder
 COMPONENT_SRCDIRS +=../components/espnow
 COMPONENT_SRCDIRS +=../components/ble_new
 

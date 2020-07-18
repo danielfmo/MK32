@@ -28,15 +28,19 @@
 #include "esp_sleep.h"
 #include "esp_log.h"
 #define GPIO_TAG "GPIO"
+#define NOP() asm volatile ("nop")
 /* Define pins, notice that:
  * GPIO6-11 are usually used for SPI flash
  * GPIO34-39 can only be set as input mode and do not have software pullup or pulldown functions.
  * GPIOS 0,2,4,12-15,25-27,32-39 Can be used as RTC GPIOS as well (please read about power management in ReadMe)
  */
-const gpio_num_t MATRIX_ROWS_PINS[] = { GPIO_NUM_0, GPIO_NUM_2, GPIO_NUM_4,
-		GPIO_NUM_12, GPIO_NUM_13, GPIO_NUM_14 };
-const gpio_num_t MATRIX_COLS_PINS[] = { GPIO_NUM_15, GPIO_NUM_25, GPIO_NUM_26,
-		GPIO_NUM_27, GPIO_NUM_32, GPIO_NUM_33 };
+const gpio_num_t MATRIX_ROWS_PINS[] = { GPIO_NUM_33, GPIO_NUM_36, GPIO_NUM_37,
+					GPIO_NUM_38,GPIO_NUM_39,GPIO_NUM_35};
+
+const gpio_num_t MATRIX_COLS_PINS[] = { GPIO_NUM_0, GPIO_NUM_2, GPIO_NUM_17, GPIO_NUM_4, GPIO_NUM_16,
+					GPIO_NUM_15, GPIO_NUM_19, GPIO_NUM_23, GPIO_NUM_22, GPIO_NUM_5,
+					GPIO_NUM_18, GPIO_NUM_32, GPIO_NUM_26, GPIO_NUM_14, GPIO_NUM_21,
+					GPIO_NUM_27, GPIO_NUM_25};
 
 // matrix states
 uint8_t MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS] = { 0 };
@@ -47,6 +51,32 @@ uint32_t lastDebounceTime = 0;
 
 uint8_t (*matrix_states[])[MATRIX_ROWS][MATRIX_COLS] = { &MATRIX_STATE,
 		&SLAVE_MATRIX_STATE, };
+
+//for microseconds
+//If the matrix scans too quickly and the inputs are in Pulldown state,
+//the resistor(50K) built on the esp32 doesnt drain quickly enough...
+//which registers the next time the pin is read. The sleep lets it drain...only need 4 µseconds.
+//TODO Make this better..right now its a tight loop which might be worse for battery(?)
+unsigned long IRAM_ATTR micros()
+{
+    return (unsigned long) (esp_timer_get_time());
+}
+void IRAM_ATTR delayMicroseconds(uint32_t us)
+{
+    uint32_t m = micros();
+    if(us){
+        uint32_t e = (m + us);
+        if(m > e){ //overflow
+            while(micros() > e){
+                NOP();
+            }
+        }
+        while(micros() < e){
+            NOP();
+        }
+    }
+}
+
 
 //used for debouncing
 static uint32_t millis() {
@@ -82,8 +112,8 @@ void rtc_matrix_deinit(void) {
 // Initializing rtc matrix pins for deep sleep wake up
 void rtc_matrix_setup(void) {
 	uint64_t rtc_mask = 0;
-
-	// Initializing columns
+#ifdef COL2ROW
+	// Initializing columns-Output
 	for (uint8_t col = 0; col < MATRIX_COLS; col++) {
 
 		if (rtc_gpio_is_valid_gpio(MATRIX_COLS_PINS[col]) == 1) {
@@ -97,16 +127,13 @@ void rtc_matrix_setup(void) {
 		}
 	}
 
-	// Initializing rows
+	// Initializing rows-only input
 	for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
 
 		if (rtc_gpio_is_valid_gpio(MATRIX_ROWS_PINS[row]) == 1) {
 			rtc_gpio_init((MATRIX_ROWS_PINS[row]));
 			rtc_gpio_set_direction(MATRIX_ROWS_PINS[row],
-					RTC_GPIO_MODE_INPUT_OUTPUT);
-			rtc_gpio_set_drive_capability(MATRIX_ROWS_PINS[row],
-					GPIO_DRIVE_CAP_0);
-			rtc_gpio_set_level(MATRIX_ROWS_PINS[row], 0);
+					RTC_GPIO_MODE_INPUT_ONLY);//if using RTC_GPIO_MODE_INPUT_OUTPUT this fails on input only pins...hence INPUT_ONLY
 			rtc_gpio_wakeup_enable(MATRIX_ROWS_PINS[row], GPIO_INTR_HIGH_LEVEL);
 			SET_BIT(rtc_mask, MATRIX_ROWS_PINS[row]);
 
@@ -115,13 +142,43 @@ void rtc_matrix_setup(void) {
 		}
 		esp_sleep_enable_ext1_wakeup(rtc_mask, ESP_EXT1_WAKEUP_ANY_HIGH);
 	}
+#endif
+#ifdef ROW2COL
+	// Initializing rows-output
+	for (uint8_t row = 0; col < MATRIX_ROWS; row++) {
+
+		if (rtc_gpio_is_valid_gpio(MATRIX_ROWS_PINS[row]) == 1) {
+			rtc_gpio_init((MATRIX_ROWS_PINS[row]));
+			rtc_gpio_set_direction(MATRIX_ROWS_PINS[row],
+					RTC_GPIO_MODE_INPUT_OUTPUT);
+			ESP_LOGI(GPIO_TAG,"%d is level %d", MATRIX_ROWS_PINS[row],
+					gpio_get_level(MATRIX_ROWS_PINS[row]));
+		}
+	}
+
+	// Initializing columns -Input
+	for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+
+		if (rtc_gpio_is_valid_gpio(MATRIX_COLS_PINS[col]) == 1) {
+			rtc_gpio_init((MATRIX_COLS_PINS[col]));
+			rtc_gpio_set_direction(MATRIX_COLS_PINS[col],
+					RTC_GPIO_MODE_INPUT_ONLY);
+			rtc_gpio_wakeup_enable(MATRIX_COLS_PINS[col], GPIO_INTR_HIGH_LEVEL);
+			SET_BIT(rtc_mask, MATRIX_COLS_PINS[col]);
+
+			ESP_LOGI(GPIO_TAG,"%d is level %d", MATRIX_COLS_PINS[col],
+					gpio_get_level(MATRIX_COLS_PINS[col]));
+		}
+		esp_sleep_enable_ext1_wakeup(rtc_mask, ESP_EXT1_WAKEUP_ANY_HIGH);
+	}
+#endif
 }
 
 // Initializing matrix pins
 void matrix_setup(void) {
 
 #ifdef COL2ROW
-	// Initializing columns
+	// Initializing columns-Output Only
 	for (uint8_t col = 0; col < MATRIX_COLS; col++) {
 
 		gpio_pad_select_gpio(MATRIX_COLS_PINS[col]);
@@ -132,16 +189,13 @@ void matrix_setup(void) {
 				gpio_get_level(MATRIX_COLS_PINS[col]));
 	}
 
-	// Initializing rows
+	// Initializing rows-Input Only
 	for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
 
 		gpio_pad_select_gpio(MATRIX_ROWS_PINS[row]);
-		gpio_set_direction(MATRIX_ROWS_PINS[row], GPIO_MODE_INPUT_OUTPUT);
-		gpio_set_drive_capability(MATRIX_ROWS_PINS[row], GPIO_DRIVE_CAP_0);
-		gpio_set_level(MATRIX_ROWS_PINS[row], 0);
-
-		ESP_LOGI(GPIO_TAG,"%d is level %d", MATRIX_ROWS_PINS[row],
-				gpio_get_level(MATRIX_ROWS_PINS[row]));
+		gpio_set_direction(MATRIX_ROWS_PINS[row], GPIO_MODE_INPUT);
+		gpio_set_pull_mode(MATRIX_ROWS_PINS[row], GPIO_PULLDOWN_ONLY);
+		gpio_pulldown_en(MATRIX_ROWS_PINS[row]);
 	}
 #endif
 #ifdef ROW2COL
@@ -158,11 +212,9 @@ void matrix_setup(void) {
 	for(uint8_t col=0; col < MATRIX_COLS; col++) {
 
 		gpio_pad_select_gpio(MATRIX_COLS_PINS[col]);
-		gpio_set_direction(MATRIX_COLS_PINS[col], GPIO_MODE_INPUT_OUTPUT);
-		gpio_set_drive_capability(MATRIX_COLS_PINS[col],GPIO_DRIVE_CAP_0);
-		gpio_set_level(MATRIX_COLS_PINS[col], 0);
-
-		ESP_LOGI(GPIO_TAG,"%d is level %d",MATRIX_COLS_PINS[col],gpio_get_level(MATRIX_COLS_PINS[col]));
+	        gpio_set_direction(MATRIX_COLS_PINS[col], GPIO_MODE_INPUT);
+                gpio_set_pull_mode(MATRIX_COLS_PINS[col], GPIO_PULLDOWN_ONLY);
+                gpio_pulldown_en(MATRIX_COLS_PINS[col]);
 	}
 #endif
 }
@@ -172,7 +224,7 @@ uint32_t DEBOUNCE_MATRIX[MATRIX_ROWS][MATRIX_COLS] = { 0 };
 // Scanning the matrix for input
 void scan_matrix(void) {
 #ifdef COL2ROW
-	// Setting column pin as low, and checking if the input of a row pin changes.
+	// Setting column pin as high, and checking if the input of a row pin changes.
 	for (uint8_t col = 0; col < MATRIX_COLS; col++) {
 		gpio_set_level(MATRIX_COLS_PINS[col], 1);
 		for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
@@ -191,13 +243,14 @@ void scan_matrix(void) {
 			}
 		}
 		gpio_set_level(MATRIX_COLS_PINS[col], 0);
+		delayMicroseconds(4);
 	}
 
 #endif
 #ifdef ROW2COL
-	// Setting row pin as low, and checking if the input of a column pin changes.
+	// Setting row pin as high, and checking if the input of a column pin changes.
 	for(uint8_t row=0; row < MATRIX_ROWS; row++) {
-		gpio_set_level(MATRIX_ROWS_PINS[row], 0);
+		gpio_set_level(MATRIX_ROWS_PINS[row], 1);
 
 		for(uint8_t col=0; col <MATRIX_COLS; col++) {
 
@@ -215,6 +268,7 @@ void scan_matrix(void) {
 			}
 		}
 		gpio_set_level(MATRIX_ROWS_PINS[row], 0);
+		delayMicroseconds(4);
 	}
 #endif
 

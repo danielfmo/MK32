@@ -1,12 +1,26 @@
-Language: Cpp
+---
 BasedOnStyle: Google
-AlignConsecutiveAssignments: true
-AlignTrailingComments: true
-AlignOperands: true
-BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Attach
-BreakBeforeInheritanceComma: false
-BreakBeforeTernaryOperators: true
-ColumnLimit: 280
-IndentWidth: 4
-SortIncludes: false
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignOperands: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: 'false'
+BinPackArguments: 'true'
+BinPackParameters: 'true'
+ColumnLimit: '1000'
+IndentCaseLabels: 'true'
+IndentPPDirectives: AfterHash
+IndentWidth: '4'
+MaxEmptyLinesToKeep: '1'
+PointerAlignment: Right
+SortIncludes: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: 'false'
+TabWidth: '4'
+UseTab: Never
+
+...

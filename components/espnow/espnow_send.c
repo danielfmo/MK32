@@ -37,14 +37,10 @@
 #include "espnow_send.h"
 #include "keyboard_config.h"
 
-// #include "r_encoder.h"
-
 #define ESP_NOW_TAG "ESP-NOW"
 
 // Queue for sending esp-now reports
 QueueHandle_t espnow_matrix_send_q;
-// QueueHandle_t espnow_encoder_send_q;
-// Mac adress of the main device (only mac address needed for ESP-NOW)
 static uint8_t master_mac_adr[6] = {0x80, 0x7d, 0x3a, 0xba, 0x26, 0x88};
 
 uint8_t channel = 10;
@@ -101,15 +97,6 @@ void espnow_send_state(void *pvParameters) {
             // send the report
             esp_now_send(pPeer->peer_addr, (uint8_t *)&CURRENT_MATRIX, sizeof(CURRENT_MATRIX));
         }
-
-// #ifdef R_ENCODER_SLAVE
-//         uint8_t CURRENT_ENCODER[1] = {0};
-//         if (xQueueReceive(espnow_encoder_send_q, &CURRENT_ENCODER, 2)) {
-//             ESP_LOGI(ESP_NOW_TAG, "Sending encoder state!");
-//             // send the report
-//             esp_now_send(pPeer->peer_addr, (uint8_t *)&CURRENT_ENCODER, sizeof(CURRENT_ENCODER));
-//         }
-// #endif
     }
 }
 // Initialize sending via espnow
@@ -133,11 +120,6 @@ void espnow_initialize_send(void) {
 void espnow_send(void) {
     ESP_LOGI(ESP_NOW_TAG, "Initialing ESP-NOW functions for sending data");
     espnow_matrix_send_q = xQueueCreate(32, (2 + MATRIX_ROWS * MATRIX_COLS) * sizeof(uint8_t));
-// #ifdef R_ENCODER_SLAVE
-//     r_encoder_setup();
-//     espnow_encoder_send_q = xQueueCreate(32, sizeof(uint8_t));
-// #endif
-
     wifi_initialize_send();
     espnow_initialize_send();
 }

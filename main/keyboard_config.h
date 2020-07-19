@@ -13,15 +13,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
-// #include "oled_tasks.h"
 
 #define MODULE_ID "LOLIN 32"
 #define GATTS_TAG "Backpack Keyboard"  // The device's name
 #define MAX_BT_DEVICENAME_LENGTH 40
 
 #define MASTER  // undefine if you are flashing the slave controller
-//#define SPLIT_MASTER	 // undefine if keyboard is not split and master
-//#define SLAVE	 // undefine if keyboard is master
 
 #define DEBOUNCE 5  // debounce time in ms
 
@@ -36,18 +33,6 @@
 // Select diode direction
 #define COL2ROW
 //#define ROW2COL
-
-// Encoder definitions
-//#define R_ENCODER // undefine if no rotary encoder is used
-//#define R_ENCODER_SLAVE // undefine if no rotary encoder is used on slave pad
-#define ENCODER_A_PIN GPIO_NUM_17  // encoder phase A pin
-#define ENCODER_B_PIN GPIO_NUM_34  // encoder phase B pin
-#define ENCODER_S_PIN GPIO_NUM_16  // encoder switch pin
-
-// OLED Parameters
-// #define OLED_ENABLE //undefine if no oled is used
-// #define OLED_SDA_PIN GPIO_NUM_23
-// #define OLED_SCL_PIN GPIO_NUM_22
 
 /*Battery monitoring
  * Please read check battery_monitor.h for resistor values before applying
@@ -79,20 +64,12 @@
 #define MACRO_BASE_VAL 0x103
 #define LAYERS_BASE_VAL 0xFF
 
-#define ENCODER_SIZE 4
-#define MEDIA_ENCODER 0
-#define MOUSE_ENCODER 1
-#define KEY_ENCODER 2
-
 typedef struct config_data {
     char bt_device_name[MAX_BT_DEVICENAME_LENGTH];
 } config_data_t;
 
 extern uint8_t current_layout;
 extern uint8_t curr_led;
-
-// extern uint16_t default_encoder_map[LAYERS][ENCODER_SIZE];
-// extern uint16_t default_slave_encoder_map[LAYERS][ENCODER_SIZE];
 
 #define MAX_LAYOUT_NAME_LENGTH 15
 // array to hold names of layouts for oled

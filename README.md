@@ -18,7 +18,6 @@ Please refer to the original project for more information, this page will be upd
 - Update esp-idf version to v4.1.
 - Plugin API support(Implemented):  
   - Currently only one plugin can run at a time (to modify).
-- More than 2 pads with espnow (currently supports 2 pads) - Optional.
 - Connection switching.
 - Modify keymap via webserver:  
   - Functions for storing (and reading) AP data on flash complete.  
@@ -27,4 +26,3 @@ Please refer to the original project for more information, this page will be upd
 - Wifi manager:
   - Add plugin for adding AP.  
   - Functions for storing (and reading) AP from flash done.  
-  - ESPNOW does not work if wifi AP is not on the same channel (Problematic for ESPNOW Based split boards).

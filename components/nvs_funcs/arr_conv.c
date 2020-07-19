@@ -26,20 +26,20 @@
 #include <arr_conv.h>
 
 // convert blob to keymap matrix
-void blob_to_key_mat(uint16_t layout_arr[MATRIX_ROWS * KEYMAP_COLS], uint16_t buffer[MATRIX_ROWS][KEYMAP_COLS]) {
+void blob_to_key_mat(uint16_t layout_arr[MATRIX_ROWS * MATRIX_COLS], uint16_t buffer[MATRIX_ROWS][MATRIX_COLS]) {
     for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        for (uint8_t col = 0; col < KEYMAP_COLS; col++) {
-            buffer[row][col] = layout_arr[row * KEYMAP_COLS + col];
+        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+            buffer[row][col] = layout_arr[row * MATRIX_COLS + col];
         }
     }
 }
 
 // convert keymap matrix to blob
-void key_mat_to_blob(uint16_t layout[MATRIX_ROWS][KEYMAP_COLS], uint16_t *buffer) {
-    uint16_t layout_arr[MATRIX_ROWS * KEYMAP_COLS] = {0};
+void key_mat_to_blob(uint16_t layout[MATRIX_ROWS][MATRIX_COLS], uint16_t *buffer) {
+    uint16_t layout_arr[MATRIX_ROWS * MATRIX_COLS] = {0};
     for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        for (uint8_t col = 0; col < KEYMAP_COLS; col++) {
-            layout_arr[row * KEYMAP_COLS + col] = layout[row][col];
+        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+            layout_arr[row * MATRIX_COLS + col] = layout[row][col];
         }
     }
     memcpy(buffer, layout_arr, sizeof(layout_arr));

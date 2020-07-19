@@ -36,10 +36,10 @@
  *if a key is not in the report it will be set to 0
  */
 
-uint8_t KEY_STATE[MATRIX_ROWS][KEYMAP_COLS] = {0};
-uint16_t led_status                         = 0;
-uint8_t modifier                            = 0;
-uint16_t keycode                            = 0;
+uint8_t  KEY_STATE[MATRIX_ROWS][MATRIX_COLS] = {0};
+uint16_t led_status                          = 0;
+uint8_t  modifier                            = 0;
+uint16_t keycode                             = 0;
 
 // Sizing the report for N-key rollover
 uint8_t current_report[REPORT_LEN] = {0};
@@ -149,114 +149,113 @@ void layer_adjust(uint16_t keycode) {
 // checking the state of each key in the matrix
 uint8_t *check_key_state(uint16_t **keymap) {
     scan_matrix();
-    for (uint8_t pad = 0; pad < KEYPADS; pad++) {
-        uint8_t matrix_state[MATRIX_ROWS][MATRIX_COLS] = {0};
-        memcpy(matrix_state, matrix_states[pad], sizeof(matrix_state));
 
-        for (uint8_t col = (MATRIX_COLS * pad); col < ((pad + 1) * (MATRIX_COLS)); col++) {
-            for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-                uint16_t report_index = (2 + col + row * KEYMAP_COLS);
-                keycode               = keymap[row][col];
+    uint8_t matrix_state[MATRIX_ROWS][MATRIX_COLS] = {0};
+    memcpy(matrix_state, matrix_states, sizeof(matrix_state));
 
-                // checking if the keycode is transparent
-                if (keycode == KC_TRNS) {
-                    if (current_layout == 0) {
-                        keycode = *default_layouts[MAX_LAYER][row][col];
-                    } else {
-                        keycode = *default_layouts[current_layout - 1][row][col];
-                    }
+    for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            uint16_t report_index = (2 + col + row * MATRIX_COLS);
+            keycode               = keymap[row][col];
+
+            // checking if the keycode is transparent
+            if (keycode == KC_TRNS) {
+                if (current_layout == 0) {
+                    keycode = *default_layouts[MAX_LAYER][row][col];
+                } else {
+                    keycode = *default_layouts[current_layout - 1][row][col];
                 }
+            }
 
-                led_status = check_led_status(keycode);
-                if (matrix_state[row][col - MATRIX_COLS * pad] == 1) {
-                    // checking for function
-                    if (keycode >= PLUGIN_BASE_VAL) {
-                        plugin_launcher(keycode);
-                        continue;
-                    }
-                    // checking for layer hold
-                    if ((keycode >= LAYER_HOLD_BASE_VAL) && (keycode <= LAYER_HOLD_MAX_VAL)) {
-                        if (layer_hold_flag == 0) {
-                            prev_layout     = current_layout;
-                            current_layout  = (keycode - LAYER_HOLD_BASE_VAL);
-                            layer_hold_flag = 1;
-                            ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
-                        }
-
-                        continue;
-                    }
-
-                    // checking for layer adjust keycodes
-                    if ((keycode >= LAYERS_BASE_VAL) && (keycode < MACRO_BASE_VAL)) {
-                        layer_adjust(keycode);
-                        continue;
-                    }
-
-                    // checking for macros
-                    if ((keycode >= MACRO_BASE_VAL) && (keycode <= LAYER_HOLD_BASE_VAL)) {
-                        for (uint8_t i = 0; i < 3; i++) {
-                            uint16_t key                       = macros[MACRO_BASE_VAL - keycode][i];
-                            current_report[REPORT_LEN - 1 - i] = key;
-                            modifier |= check_modifier(key);
-                            printf("\nmodifier:%d", modifier);
-                        }
-                        continue;
-                    }
-
-                    // checking for media control keycodes
-                    if ((keycode >= KC_MEDIA_NEXT_TRACK) && (keycode <= KC_AUDIO_VOL_DOWN)) {
-                        media_control_send(keycode);
-                    }
-
-                    // checking for system control keycodes
-                    //				if((keycode>=0XA8)&&(keycode<=0XA7)){
-                    //					system_control(keycode);
-                    //					continue;
-                    //				}
-
-                    if (current_report[report_index] == 0) {
-                        modifier |= check_modifier(keycode);
-                        current_report[report_index] = keycode;
-                    }
+            led_status = check_led_status(keycode);
+            if (matrix_state[row][col] == 1) {
+                // checking for function
+                if (keycode >= PLUGIN_BASE_VAL) {
+                    plugin_launcher(keycode);
+                    continue;
                 }
-                if (matrix_state[row][col - MATRIX_COLS * pad] == 0) {
-                    // checking for layer hold release
-                    if ((layouts[prev_layout][row][col] >= LAYER_HOLD_BASE_VAL) && (keycode <= LAYER_HOLD_MAX_VAL) && (layer_hold_flag == 1)) {
-                        current_layout  = 0;
-                        layer_hold_flag = 0;
+                // checking for layer hold
+                if ((keycode >= LAYER_HOLD_BASE_VAL) && (keycode <= LAYER_HOLD_MAX_VAL)) {
+                    if (layer_hold_flag == 0) {
+                        prev_layout     = current_layout;
+                        current_layout  = (keycode - LAYER_HOLD_BASE_VAL);
+                        layer_hold_flag = 1;
                         ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
                     }
 
-                    // checking if macro was released
-                    if ((keycode >= MACRO_BASE_VAL) && (keycode <= LAYER_HOLD_BASE_VAL)) {
-                        for (uint8_t i = 0; i < 3; i++) {
-                            uint16_t key                       = macros[MACRO_BASE_VAL - keycode][i];
-                            current_report[REPORT_LEN - 1 - i] = 0;
-                            modifier &= ~check_modifier(key);
-                        }
-                    }
-
-                    if (current_report[report_index] != 0) {
-                        if (led_status != 0) {
-                            led_status = 0;
-                        }
-
-                        modifier &= ~check_modifier(keycode);
-                        current_report[KEY_STATE[row][col]] = 0;
-                        current_report[report_index]        = 0;
-
-                        // checking for media control keycodes
-                        if ((keycode >= KC_MEDIA_NEXT_TRACK) && (keycode <= KC_AUDIO_VOL_DOWN)) {
-                            media_control_release(keycode);
-                        }
-                    }
-
-                    // checking for system control keycodes
-                    //				if((keycode>=0XA8)&&(keycode<=0XA7)){
-                    //					system_control_release(keycode);
-                    //					continue;
-                    //				}
+                    continue;
                 }
+
+                // checking for layer adjust keycodes
+                if ((keycode >= LAYERS_BASE_VAL) && (keycode < MACRO_BASE_VAL)) {
+                    layer_adjust(keycode);
+                    continue;
+                }
+
+                // checking for macros
+                if ((keycode >= MACRO_BASE_VAL) && (keycode <= LAYER_HOLD_BASE_VAL)) {
+                    for (uint8_t i = 0; i < 3; i++) {
+                        uint16_t key                       = macros[MACRO_BASE_VAL - keycode][i];
+                        current_report[REPORT_LEN - 1 - i] = key;
+                        modifier |= check_modifier(key);
+                        printf("\nmodifier:%d", modifier);
+                    }
+                    continue;
+                }
+
+                // checking for media control keycodes
+                if ((keycode >= KC_MEDIA_NEXT_TRACK) && (keycode <= KC_AUDIO_VOL_DOWN)) {
+                    media_control_send(keycode);
+                }
+
+                // checking for system control keycodes
+                //				if((keycode>=0XA8)&&(keycode<=0XA7)){
+                //					system_control(keycode);
+                //					continue;
+                //				}
+
+                if (current_report[report_index] == 0) {
+                    modifier |= check_modifier(keycode);
+                    current_report[report_index] = keycode;
+                }
+            }
+            if (matrix_state[row][col] == 0) {
+                // checking for layer hold release
+                if ((layouts[prev_layout][row][col] >= LAYER_HOLD_BASE_VAL) && (keycode <= LAYER_HOLD_MAX_VAL) && (layer_hold_flag == 1)) {
+                    current_layout  = 0;
+                    layer_hold_flag = 0;
+                    ESP_LOGI(KEY_PRESS_TAG, "Layer modified!, Current layer: %d ", current_layout);
+                }
+
+                // checking if macro was released
+                if ((keycode >= MACRO_BASE_VAL) && (keycode <= LAYER_HOLD_BASE_VAL)) {
+                    for (uint8_t i = 0; i < 3; i++) {
+                        uint16_t key                       = macros[MACRO_BASE_VAL - keycode][i];
+                        current_report[REPORT_LEN - 1 - i] = 0;
+                        modifier &= ~check_modifier(key);
+                    }
+                }
+
+                if (current_report[report_index] != 0) {
+                    if (led_status != 0) {
+                        led_status = 0;
+                    }
+
+                    modifier &= ~check_modifier(keycode);
+                    current_report[KEY_STATE[row][col]] = 0;
+                    current_report[report_index]        = 0;
+
+                    // checking for media control keycodes
+                    if ((keycode >= KC_MEDIA_NEXT_TRACK) && (keycode <= KC_AUDIO_VOL_DOWN)) {
+                        media_control_release(keycode);
+                    }
+                }
+
+                // checking for system control keycodes
+                //				if((keycode>=0XA8)&&(keycode<=0XA7)){
+                //					system_control_release(keycode);
+                //					continue;
+                //				}
             }
         }
     }

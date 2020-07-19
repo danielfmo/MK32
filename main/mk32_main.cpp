@@ -47,8 +47,6 @@
 #include "matrix.h"
 #include "keypress_handles.c"
 #include "keyboard_config.h"
-#include "espnow_recieve.h"
-#include "espnow_send.h"
 #include "battery_monitor.h"
 #include "nvs_funcs.h"
 #include "nvs_keymaps.h"
@@ -62,7 +60,6 @@
 #include "plugins.h"
 
 static config_data_t config;
-QueueHandle_t espnow_recieve_q;
 
 bool DEEP_SLEEP = true;  // flag to check if we need to go to deep sleep
 
@@ -120,30 +117,6 @@ extern "C" void key_reports(void *pvParameters) {
     }
 }
 
-// Function for sending out the modified matrix
-extern "C" void slave_scan(void *pvParameters) {
-    uint8_t PAST_MATRIX[MATRIX_ROWS][MATRIX_COLS] = {0};
-
-    while (1) {
-        scan_matrix();
-        if (memcmp(&PAST_MATRIX, &MATRIX_STATE, sizeof MATRIX_STATE) != 0) {
-            DEEP_SLEEP = false;
-            memcpy(&PAST_MATRIX, &MATRIX_STATE, sizeof MATRIX_STATE);
-            xQueueSend(espnow_matrix_send_q, (void *)&MATRIX_STATE, (TickType_t)0);
-        }
-    }
-}
-
-// Update the matrix state via reports recieved by espnow
-extern "C" void espnow_update_matrix(void *pvParameters) {
-    uint8_t CURRENT_MATRIX[MATRIX_ROWS][MATRIX_COLS] = {0};
-    while (1) {
-        if (xQueueReceive(espnow_recieve_q, &CURRENT_MATRIX, 10000)) {
-            DEEP_SLEEP = false;
-            memcpy(&SLAVE_MATRIX_STATE, &CURRENT_MATRIX, sizeof CURRENT_MATRIX);
-        }
-    }
-}
 // what to do after waking from deep sleep, doesn't seem to work after updating esp-idf
 // extern "C" void RTC_IRAM_ATTR esp_wake_deep_sleep(void) {
 //    rtc_matrix_deinit();;
@@ -222,35 +195,15 @@ extern "C" void app_main() {
     esp_log_level_set("*", ESP_LOG_INFO);
 
     // Loading layouts from nvs (if found)
-#ifdef MASTER
     nvs_load_layouts();
     // activate keyboard BT stack
     halBLEInit(1, 1, 1, 0);
     ESP_LOGI("HIDD", "MAIN finished...");
-#endif
-
-    // If the device is a slave initialize sending reports to master
-#ifdef SLAVE
-    xTaskCreatePinnedToCore(slave_scan, "Scan matrix changes for slave", 4096, xKeyreportTask, configMAX_PRIORITIES, NULL, 1);
-    espnow_send();
-#endif
-
-    // If the device is a master for split board initialize receiving reports from slave
-#ifdef SPLIT_MASTER
-    espnow_recieve_q = xQueueCreate(32, REPORT_LEN * sizeof(uint8_t));
-    espnow_recieve();
-    xTaskCreatePinnedToCore(espnow_update_matrix, "ESP-NOW slave matrix state", 4096, NULL, configMAX_PRIORITIES, NULL, 1);
-    ESP_LOGI("ESPNOW", "initializezd");
-
-#endif
-
     // Start the keyboard Tasks
     // Create the key scanning task on core 1 (otherwise it will crash)
-#ifdef MASTER
     BLE_EN = 1;
     xTaskCreatePinnedToCore(key_reports, "key report task", 8192, xKeyreportTask, configMAX_PRIORITIES, NULL, 1);
     ESP_LOGI("Keyboard task", "initializezd");
-#endif
 
 #ifdef BATT_STAT
     init_batt_monitor();

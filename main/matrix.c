@@ -41,13 +41,11 @@ const gpio_num_t MATRIX_COLS_PINS[] = {GPIO_NUM_0, GPIO_NUM_2, GPIO_NUM_17, GPIO
 // matrix states
 uint8_t MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS]       = {0};
 uint8_t PREV_MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS]  = {0};
-uint8_t SLAVE_MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS] = {0};
 
 uint32_t lastDebounceTime = 0;
 
-uint8_t (*matrix_states[])[MATRIX_ROWS][MATRIX_COLS] = {
+uint8_t (*matrix_states)[MATRIX_ROWS][MATRIX_COLS] = {
     &MATRIX_STATE,
-    &SLAVE_MATRIX_STATE,
 };
 
 // for microseconds

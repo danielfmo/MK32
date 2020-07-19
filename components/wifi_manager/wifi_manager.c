@@ -424,17 +424,8 @@ void wifi_connection_deinit(void){
 
 	ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, event_handler));
 	ESP_ERROR_CHECK(esp_wifi_disconnect());
-#ifndef SPLIT_MASTER
 	ESP_ERROR_CHECK(esp_wifi_stop());
 	ESP_ERROR_CHECK(esp_wifi_deinit());
-#endif
-#ifdef SPLIT_MASTER
-	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-	ESP_ERROR_CHECK(esp_wifi_stop());
-	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-	ESP_ERROR_CHECK(esp_wifi_start());
-	esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE); // Make sure we are on the same channel
-#endif
 	vTaskDelay(250/portTICK_PERIOD_MS);
 
 }
@@ -447,10 +438,7 @@ uint8_t wifi_connection_init(void){
 	wifi_ap_record_t* ap_records;
 	wifi_sta_config_t sta_config;
 	tcpip_adapter_ip_info_t ip_info;
-	;
 
-	// if the keyboards does not use esp now we need to init wifi
-#ifndef SPLIT_MASTER
 	tcpip_adapter_init();
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -460,7 +448,6 @@ uint8_t wifi_connection_init(void){
 	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 	//esp_wifi_set_mac(ESP_IF_WIFI_STA, master_mac_adr);
 	ESP_ERROR_CHECK(esp_wifi_start());
-#endif
 
 	s_wifi_event_group = xEventGroupCreate();
 
@@ -541,10 +528,6 @@ uint8_t wifi_connection_init(void){
 			}
 		}
 	}
-#ifdef SPLIT_MASTER
-	ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, event_handler));
-	esp_wifi_start();
-#endif
 	return FAILED;
 
 

@@ -20,8 +20,7 @@ extern "C" {
 #endif
 
 extern uint8_t MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS];
-extern uint8_t SLAVE_MATRIX_STATE[MATRIX_ROWS][MATRIX_COLS];
-extern uint8_t (*matrix_states[])[MATRIX_ROWS][MATRIX_COLS];
+extern uint8_t (*matrix_states)[MATRIX_ROWS][MATRIX_COLS];
 
 /*
  * @brief deinitialize rtc pins

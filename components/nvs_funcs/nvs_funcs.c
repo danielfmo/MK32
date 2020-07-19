@@ -46,16 +46,16 @@ uint8_t layers_num = 0;
 uint16_t*** layouts;
 
 // read a layout from nvs
-void nvs_read_layout(const char* layout_name, uint16_t buffer[MATRIX_ROWS][KEYMAP_COLS]) {
+void nvs_read_layout(const char* layout_name, uint16_t buffer[MATRIX_ROWS][MATRIX_COLS]) {
     ESP_LOGI(NVS_TAG, "Opening NVS handle");
-    uint16_t layout[MATRIX_ROWS][KEYMAP_COLS] = {0};
+    uint16_t layout[MATRIX_ROWS][MATRIX_COLS] = {0};
     err                                       = nvs_open(KEYMAP_NAMESPACE, NVS_READWRITE, &keymap_handle);
     if (err != ESP_OK) {
         ESP_LOGE(NVS_TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(err));
     } else {
         ESP_LOGI(NVS_TAG, "NVS Handle opened successfully");
     }
-    uint16_t layout_arr[MATRIX_ROWS * KEYMAP_COLS] = {0};
+    uint16_t layout_arr[MATRIX_ROWS * MATRIX_COLS] = {0};
     size_t arr_size;
     // get blob array size
     err = nvs_get_blob(keymap_handle, layout_name, NULL, &arr_size);
@@ -72,7 +72,7 @@ void nvs_read_layout(const char* layout_name, uint16_t buffer[MATRIX_ROWS][KEYMA
     nvs_close(keymap_handle);
 }
 // add or overwrite a keymap to the nvs
-void nvs_write_layout_matrix(uint16_t layout[MATRIX_ROWS][KEYMAP_COLS], const char* layout_name) {
+void nvs_write_layout_matrix(uint16_t layout[MATRIX_ROWS][MATRIX_COLS], const char* layout_name) {
     ESP_LOGI(NVS_TAG, "Opening NVS handle");
     err = nvs_open(KEYMAP_NAMESPACE, NVS_READWRITE, &keymap_handle);
     if (err != ESP_OK) {
@@ -80,7 +80,7 @@ void nvs_write_layout_matrix(uint16_t layout[MATRIX_ROWS][KEYMAP_COLS], const ch
     } else {
         ESP_LOGI(NVS_TAG, "NVS Handle opened successfully");
     }
-    uint16_t layout_arr[MATRIX_ROWS * KEYMAP_COLS] = {0};
+    uint16_t layout_arr[MATRIX_ROWS * MATRIX_COLS] = {0};
     key_mat_to_blob(layout, layout_arr);
 
     err = nvs_set_blob(keymap_handle, layout_name, layout_arr, sizeof(layout_arr));
@@ -94,7 +94,7 @@ void nvs_write_layout_matrix(uint16_t layout[MATRIX_ROWS][KEYMAP_COLS], const ch
 }
 
 // add or overwrite a keymap to the nvs
-void nvs_write_layout(uint16_t layout[MATRIX_ROWS][KEYMAP_COLS], const char* layout_name) {
+void nvs_write_layout(uint16_t layout[MATRIX_ROWS][MATRIX_COLS], const char* layout_name) {
     ESP_LOGI(NVS_TAG, "Adding/Modifying Layout");
     uint8_t FOUND_MATCH = 0;
     nvs_read_keymap_cfg();
@@ -212,13 +212,13 @@ void nvs_load_layouts(void) {
         ESP_LOGI(NVS_TAG, "Layouts found on NVS, loading layouts");
         layouts = malloc(layers_num * sizeof(uint16_t**));
         for (uint8_t i = 0; i < layers_num; i++) {
-            uint16_t layout_buff[MATRIX_ROWS][KEYMAP_COLS] = {0};
+            uint16_t layout_buff[MATRIX_ROWS][MATRIX_COLS] = {0};
             nvs_read_layout(layer_names_arr[i], layout_buff);
             layouts[i] = malloc(sizeof(layout_buff));
             ESP_LOGI(NVS_TAG, "malloc");
             for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
                 layouts[i][row] = malloc(sizeof(layout_buff[row]));
-                for (uint8_t col = 0; col < KEYMAP_COLS; col++) {
+                for (uint8_t col = 0; col < MATRIX_COLS; col++) {
                     layouts[i][row][col] = layout_buff[row][col];
                 }
             }
@@ -234,7 +234,7 @@ void nvs_load_layouts(void) {
             strcpy(layer_names_arr[i], default_layout_names[i]);
             for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
                 layouts[i][row] = malloc(sizeof((*default_layouts[i])[row]));
-                for (uint8_t col = 0; col < KEYMAP_COLS; col++) {
+                for (uint8_t col = 0; col < MATRIX_COLS; col++) {
                     layouts[i][row][col] = (*default_layouts[i])[row][col];
                 }
             }

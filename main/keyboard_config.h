@@ -18,14 +18,11 @@
 #define GATTS_TAG "Backpack Keyboard"  // The device's name
 #define MAX_BT_DEVICENAME_LENGTH 40
 
-#define MASTER  // undefine if you are flashing the slave controller
-
 #define DEBOUNCE 5  // debounce time in ms
 
 // Define matrix
-#define KEYPADS 1  // intended in order to create a Multiple keypad split boards
 #define MATRIX_ROWS 6
-#define MATRIX_COLS 17  // For split keyboards, define columns for one side only.
+#define MATRIX_COLS 17
 
 //#define NKRO // does not work on Android and iOS!,  we can get 18KRO on those
 #define LAYERS 3  // number of layers defined
@@ -54,9 +51,8 @@
 #define MAX_LAYER (LAYERS - 1)
 #define MOD_LED_BYTES 2                                                     // bytes for led status and modifiers
 #define MACRO_LEN 3                                                         // keys for macros
-#define KEYMAP_COLS MATRIX_COLS* KEYPADS                                    // used for a symmetrical split keyboard
-#define REPORT_LEN (MOD_LED_BYTES + MACRO_LEN + MATRIX_ROWS * KEYMAP_COLS)  // size of hid reports with NKRO and room for 3 key macro
-#define REPORT_COUNT_BYTES (MATRIX_ROWS * KEYMAP_COLS + MACRO_LEN)
+#define REPORT_LEN (MOD_LED_BYTES + MACRO_LEN + MATRIX_ROWS * MATRIX_COLS)  // size of hid reports with NKRO and room for 3 key macro
+#define REPORT_COUNT_BYTES (MATRIX_ROWS * MATRIX_COLS + MACRO_LEN)
 
 #define PLUGIN_BASE_VAL 0x135
 #define LAYER_HOLD_MAX_VAL 0x134

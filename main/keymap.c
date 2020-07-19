@@ -73,7 +73,7 @@ uint16_t macros[MACROS_NUM][MACRO_LEN] = {
 
 // Each keymap is represented by an array, with an array that points to all the keymaps  by order
 // TODO: Update to a 87 keys / 75%
-uint16_t _QWERTY[MATRIX_ROWS][KEYMAP_COLS] = {
+uint16_t _QWERTY[MATRIX_ROWS][MATRIX_COLS] = {
     /* Qwerty
      *	     0      2      17     4      16    15      19     23     22      5     18     32     26    14     21     27    25
      *   ,---------------------------------------------------------------------------------------------------------------------.
@@ -100,7 +100,7 @@ uint16_t _QWERTY[MATRIX_ROWS][KEYMAP_COLS] = {
 
 };
 
-uint16_t _NUM[MATRIX_ROWS][KEYMAP_COLS] = {
+uint16_t _NUM[MATRIX_ROWS][MATRIX_COLS] = {
 
     /* numpad
      * ,-----------------------------------------------------------------------------------------------------------------------.
@@ -127,7 +127,7 @@ uint16_t _NUM[MATRIX_ROWS][KEYMAP_COLS] = {
 
 };
 
-uint16_t _PLUGINS[MATRIX_ROWS][KEYMAP_COLS] = {
+uint16_t _PLUGINS[MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Qwerty
      * ,-----------------------------------------------------------------------------------------------------------------------.
@@ -155,7 +155,7 @@ uint16_t _PLUGINS[MATRIX_ROWS][KEYMAP_COLS] = {
 };
 
 // Create an array that points to the various keymaps
-uint16_t (*default_layouts[])[MATRIX_ROWS][KEYMAP_COLS] = {&_QWERTY, &_NUM, &_PLUGINS};
+uint16_t (*default_layouts[])[MATRIX_ROWS][MATRIX_COLS] = {&_QWERTY, &_NUM, &_PLUGINS};
 
 uint8_t current_layout = 0;
 

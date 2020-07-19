@@ -2,7 +2,7 @@
 
 ## Cleanup
 
-- [ ] Remove all references to MASTER and SLAVE (will support single board only)
+- [ ] Remove all references to MASTER, SLAVE and ESPNOW (will support single board only)
 - [ ] Get rid of circular references and includes
 - [ ] Re-org plugins (single component with hability to add .h to include folder)
 

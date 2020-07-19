@@ -65,7 +65,6 @@ bool DEEP_SLEEP = true;  // flag to check if we need to go to deep sleep
 
 TaskHandle_t xKeyreportTask;
 
-
 // How to handle key reports
 extern "C" void key_reports(void *pvParameters) {
     // Arrays for holding the report at various stages
@@ -162,11 +161,6 @@ extern "C" void app_main() {
     // Reset the rtc GPIOS
     rtc_matrix_deinit();
 
-    // Underclocking for better current draw (not really effective)
-    //	esp_pm_config_esp32_t pm_config;
-    //	pm_config.max_freq_mhz = 10;
-    //	pm_config.min_freq_mhz = 10;
-    //	esp_pm_configure(&pm_config);
     matrix_setup();
     esp_err_t ret;
 

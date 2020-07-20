@@ -26,3 +26,7 @@ Please refer to the original project for more information, this page will be upd
 - Wifi manager:
   - Add plugin for adding AP.  
   - Functions for storing (and reading) AP from flash done.  
+
+## Environment
+
+For developmentI use VSCode, please follow this for further intructions <https://gist.github.com/motla/ab7fdcf14303208996c40ca7fefe6f11>

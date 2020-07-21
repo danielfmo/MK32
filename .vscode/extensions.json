@@ -2,11 +2,11 @@
 {
     "recommendations": [
       "EditorConfig.EditorConfig",
-      "xaver.clang-format",
       "ms-vscode.cpptools",
       "mine.cpplint",
       "espressif.esp-idf-extension",
       "spmeesseman.vscode-taskexplorer",
-      "webfreak.debug"
+      "webfreak.debug",
+      "twxs.cmake"
     ]
   }

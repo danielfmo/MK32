@@ -4,13 +4,17 @@
             "name": "Generic",
             "includePath": [
                 "${workspaceFolder}/main/**",
+                "${workspaceFolder}/build/**",
                 "${workspaceFolder}/**",
-                "${env.HOME}/esp/esp-idf/components",
-                "${env.HOME}/.espressif/tools/xtensa-esp32-elf/esp-2020r2-8.2.0/xtensa-esp32-elf/xtensa-esp32-elf/include",
-                "/home/moura/esp/esp-idf/components/esp_timer/include",
-                "${env.HOME}/esp/esp-idf/components/**"
+                "${config:idf.espIdfPath}/components/**",
+                "${config:idf.espIdfPathWin}/components/**"
             ],
             "browse": {
+                "path": [
+                    "${config:idf.espIdfPath}/components",
+                    "${config:idf.espIdfPathWin}/components",
+                    "${workspaceFolder}"
+                ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },

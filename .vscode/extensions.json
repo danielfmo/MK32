@@ -7,6 +7,7 @@
       "espressif.esp-idf-extension",
       "spmeesseman.vscode-taskexplorer",
       "webfreak.debug",
-      "twxs.cmake"
+      "twxs.cmake",
+      "cheshirekow.cmake-format"
     ]
   }

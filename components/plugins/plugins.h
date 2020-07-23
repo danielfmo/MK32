@@ -13,9 +13,6 @@ extern "C" {
 #endif
 #include "plugin_manager.h"
 
-#define DEFAULT_SSID "SSID"      // default SSID for WiFi access point
-#define DEFAULT_PASSWORD "PASS"  // default password for WiFi access point
-
 /*
  *@brief Add the headers for your plugins here, make sure the
  *  function to be called is of type void and only takes argument void * pvParameters

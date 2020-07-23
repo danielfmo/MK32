@@ -1,3 +1,14 @@
-idf_component_register(SRCS "hid_device_le_prf.c" "hal_ble.c" "keyboard.c" "hid_dev.c"
-                       INCLUDE_DIRS "." "../../main" "../.."
-                       REQUIRES "bt" "freertos" "nvs_flash")
+idf_component_register(
+  SRCS
+  "hid_device_le_prf.c"
+  "hal_ble.c"
+  "keyboard.c"
+  "hid_dev.c"
+  INCLUDE_DIRS
+  "."
+  "../../main"
+  "../.."
+  REQUIRES
+  "bt"
+  "nvs_flash"
+  "config")

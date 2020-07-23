@@ -7,6 +7,9 @@
 #include "esp_log.h"
 #include "plugin_manager.h"
 
+#include "keycode_conv.h"
+#include "wifi_manager.h"
+
 TaskHandle_t pluginHandle;
 #define PLUGIN_LOG "Plugin Manager"
 

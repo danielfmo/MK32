@@ -18,7 +18,7 @@
 #define FAILED 0
 #define SUCCESS 1
 
-#include "plugins.h"
+// #include "plugins.h"
 
 nvs_handle wifi_nvs_handle;
 #define WIFI_NAMESPACE "wifi"

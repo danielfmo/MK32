@@ -41,6 +41,9 @@
 // deep sleep parameters, mind that reconnecting after deep sleep might take a minute or two
 #define SLEEP_MINS 45  // undefine if you do not need deep sleep, otherwise define number of minutes for deepsleep
 
+#define DEFAULT_SSID "SSID"      // default SSID for WiFi access point
+#define DEFAULT_PASSWORD "PASS"  // default password for WiFi access point
+
 /*
  *---------------------------- Everything below here should not be modified for standard usage----------------------
  *
